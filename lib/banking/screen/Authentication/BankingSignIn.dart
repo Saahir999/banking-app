@@ -74,182 +74,187 @@ class BankingSignInState extends State<BankingSignIn> {
   Widget build(BuildContext context) {
     f=0;
     f2=0;
-    return Scaffold(
-      body: Center(
-        child: Container(
-          padding: const EdgeInsets.all(16),
-          child: SingleChildScrollView(
-            child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                //mainAxisAlignment: MainAxisAlignment.center,
-                //mainAxisSize: MainAxisSize.max,
-                children: [
-                  Align(heightFactor: 5,child: Text(Banking_lbl_SignIn, style: boldTextStyle(size: 30))),
-                  Form(
-                    key: _formKey1,
-                    child: ListTile(
-                      leading: const Icon(Icons.message_rounded, color: Colors.blueAccent,),
-                      title: TextFormField(
-                        decoration: const InputDecoration(
-                          hintText: "Phone No.",
-                          focusColor: Colors.deepOrange,
+    return GestureDetector(
+      onTap: (){
+        FocusScope.of(context).unfocus();
+      },
+      child: Scaffold(
+        body: Center(
+          child: Container(
+            padding: const EdgeInsets.all(16),
+            child: SingleChildScrollView(
+              child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  //mainAxisAlignment: MainAxisAlignment.center,
+                  //mainAxisSize: MainAxisSize.max,
+                  children: [
+                    Align(heightFactor: 5,child: Text(Banking_lbl_SignIn, style: boldTextStyle(size: 30))),
+                    Form(
+                      key: _formKey1,
+                      child: ListTile(
+                        leading: const Icon(Icons.message_rounded, color: Colors.blueAccent,),
+                        title: TextFormField(
+                          decoration: const InputDecoration(
+                            hintText: "Phone No.",
+                            focusColor: Colors.deepOrange,
+                          ),
+                          focusNode: _focusNode1,
+                          controller: _controller,
+                          validator: validatePhoneNo,
                         ),
-                        focusNode: _focusNode1,
-                        controller: _controller,
-                        validator: validatePhoneNo,
+                      ),
+                      ),
+                    8.height,
+                    Form(
+                      key: _formKey2,
+                      child: ListTile(
+                        leading: const Icon(Icons.key_rounded, color: Colors.black,),
+                        title: TextFormField(
+                          decoration: const InputDecoration(
+                            hintText: "Customer ID",
+                            focusColor: Colors.deepOrange,
+                          ),
+                          initialValue: null,
+                          focusNode: _focusNode2,
+                          controller: _controller2,
+                          validator: validateID,
+                        ),
                       ),
                     ),
-                    ),
-                  8.height,
-                  Form(
-                    key: _formKey2,
-                    child: ListTile(
-                      leading: const Icon(Icons.key_rounded, color: Colors.black,),
-                      title: TextFormField(
-                        decoration: const InputDecoration(
-                          hintText: "Customer ID",
-                          focusColor: Colors.deepOrange,
-                        ),
-                        initialValue: null,
-                        focusNode: _focusNode2,
-                        controller: _controller2,
-                        validator: validateID,
+                    8.height,
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: Text(
+                          Banking_lbl_Forgot, style: secondaryTextStyle(size: 16))
+                          .onTap(
+                            () {
+                          const BankingForgotPassword().launch(context);
+                        },
                       ),
                     ),
-                  ),
-                  8.height,
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: Text(
-                        Banking_lbl_Forgot, style: secondaryTextStyle(size: 16))
-                        .onTap(
-                          () {
-                        const BankingForgotPassword().launch(context);
+                    16.height,
+                    BankingButton(
+                      textContent: Banking_lbl_SignIn,
+                      onPressed: () {
+                        if(validateID(_controller2.text) == null && validatePhoneNo(_controller.text) == null) {
+                          log("https://validated.com");
+                          //TODO-> check for platform issues if web 'app' is used as end product
+                          //storage.write(key: "showIntro", value: "false");
+                          authClass.login(custId: _controller2.text,phone: _controller.text).then((val){
+                            if(val != null){
+                              Navigator.pushReplacementNamed(context, "DashBoard",arguments: {});
+                            }
+                            else{
+                              _controller.text = "";
+                              _controller2.text = "";
+                              showAlert(context: context, title: "Please Enter correct details");
+                            }
+                          });
+                        }
                       },
                     ),
-                  ),
-                  16.height,
-                  BankingButton(
-                    textContent: Banking_lbl_SignIn,
-                    onPressed: () {
-                      if(validateID(_controller2.text) == null && validatePhoneNo(_controller.text) == null) {
-                        log("https://validated.com");
-                        //TODO-> check for platform issues if web 'app' is used as end product
-                        //storage.write(key: "showIntro", value: "false");
-                        authClass.login(custId: _controller2.text,phone: _controller.text).then((val){
-                          if(val != null){
-                            Navigator.pushReplacementNamed(context, "DashBoard",arguments: {});
-                          }
-                          else{
-                            _controller.text = "";
-                            _controller2.text = "";
-                            showAlert(context: context, title: "Please Enter correct details");
-                          }
-                        });
-                      }
-                    },
-                  ),
-                  16.height,
-                  Column(
-                    children: [
-                      TextButton(
-                          onPressed: (){
-                            Navigator.pushNamed(context, "Register");
-                          },
-                          child: const Text("Register"),
-                      ),
-                      FutureBuilder(
-                          future: _init(),
-                          builder: (context, snapshot) {
-                            if (snapshot.connectionState ==
-                                ConnectionState.done && snapshot.hasData &&
-                                _canCheckBiometrics == true &&
-                                !_availableBiometrics!.length.isNegative) {
-                              return Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: <Widget>[
-                                  if (_isAuthenticating)
-                                    ElevatedButton(
-                                      onPressed: _cancelAuthentication,
-                                      child: Row(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: const <Widget>[
-                                          Text('Cancel Authentication'),
-                                          Icon(Icons.cancel),
-                                        ],
+                    16.height,
+                    Column(
+                      children: [
+                        TextButton(
+                            onPressed: (){
+                              Navigator.pushNamed(context, "Register");
+                            },
+                            child: const Text("Register"),
+                        ),
+                        FutureBuilder(
+                            future: _init(),
+                            builder: (context, snapshot) {
+                              if (snapshot.connectionState ==
+                                  ConnectionState.done && snapshot.hasData &&
+                                  _canCheckBiometrics == true &&
+                                  !_availableBiometrics!.length.isNegative) {
+                                return Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: <Widget>[
+                                    if (_isAuthenticating)
+                                      ElevatedButton(
+                                        onPressed: _cancelAuthentication,
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: const <Widget>[
+                                            Text('Cancel Authentication'),
+                                            Icon(Icons.cancel),
+                                          ],
+                                        ),
                                       ),
-                                    ),
-                                  if(!_isAuthenticating)
-                                    TextButton(
-                                      onPressed: () {
-                                        _authenticate().then((value) {
-                                          if (value == true) {
-                                            Navigator.push(context,
-                                                MaterialPageRoute(builder: (
-                                                    context) => const BankingDashboard()));
-                                          }
-                                        });
-                                      },
-                                      child: Row(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: const <Widget>[
-                                          Text('Authenticate: Password/Pin'),
-                                          Icon(Icons.numbers_rounded),
-                                        ],
-                                      ),
-                                    ),
                                     if(!_isAuthenticating)
-                                    TextButton(
-                                      onPressed: () {
-                                        _authenticateWithBiometrics().then((
-                                            value) {
-                                          if (value == true) {
-                                            Navigator.push(context,
-                                                MaterialPageRoute(builder: (
-                                                    context) => const BankingDashboard()));
-                                          }
-                                        });
-                                      },
-                                      child: Row(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: const <Widget>[
-                                          Text('Authenticate: biometrics only'),
-                                          Icon(Icons.fingerprint),
-                                        ],
+                                      TextButton(
+                                        onPressed: () {
+                                          _authenticate().then((value) {
+                                            if (value == true) {
+                                              Navigator.push(context,
+                                                  MaterialPageRoute(builder: (
+                                                      context) => const BankingDashboard()));
+                                            }
+                                          });
+                                        },
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: const <Widget>[
+                                            Text('Authenticate: Password/Pin'),
+                                            Icon(Icons.numbers_rounded),
+                                          ],
+                                        ),
                                       ),
-                                    ),
+                                      if(!_isAuthenticating)
+                                      TextButton(
+                                        onPressed: () {
+                                          _authenticateWithBiometrics().then((
+                                              value) {
+                                            if (value == true) {
+                                              Navigator.push(context,
+                                                  MaterialPageRoute(builder: (
+                                                      context) => const BankingDashboard()));
+                                            }
+                                          });
+                                        },
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: const <Widget>[
+                                            Text('Authenticate: biometrics only'),
+                                            Icon(Icons.fingerprint),
+                                          ],
+                                        ),
+                                      ),
 
-                                ],
-                              );
+                                  ],
+                                );
+                              }
+                              else if (snapshot.connectionState ==
+                                  ConnectionState.waiting) {
+                                return const Center(
+                                    child: CircularProgressIndicator());
+                              }
+                              else {
+                                return const Center(child: Text("Error"),);
+                              }
                             }
-                            else if (snapshot.connectionState ==
-                                ConnectionState.waiting) {
-                              return const Center(
-                                  child: CircularProgressIndicator());
-                            }
-                            else {
-                              return const Center(child: Text("Error"),);
-                            }
-                          }
-                      ),
-                      const Align(
-                        heightFactor: 7,
-                        alignment: Alignment.bottomCenter,
-                        child: Text(" XXXX Bank",style: TextStyle(fontSize: 20)),
-                      ),
-                      // Text(Banking_lbl_Login_with_FaceID, style: primaryTextStyle(
-                      //     size: 16, color: Banking_TextColorSecondary))
-                      //     .onTap(() {}),
-                      // 16.height,
-                      // Image.asset(Banking_ic_face_id, color: Banking_Primary,
-                      //     height: 40,
-                      //     width: 40),
-                    ],
-                  ).center(),
+                        ),
+                        const Align(
+                          heightFactor: 7,
+                          alignment: Alignment.bottomCenter,
+                          child: Text(" XXXX Bank",style: TextStyle(fontSize: 20)),
+                        ),
+                        // Text(Banking_lbl_Login_with_FaceID, style: primaryTextStyle(
+                        //     size: 16, color: Banking_TextColorSecondary))
+                        //     .onTap(() {}),
+                        // 16.height,
+                        // Image.asset(Banking_ic_face_id, color: Banking_Primary,
+                        //     height: 40,
+                        //     width: 40),
+                      ],
+                    ).center(),
 
-                ],
-              ).center(),
-            ),
+                  ],
+                ).center(),
+              ),
+          ),
         ),
       ),
     );

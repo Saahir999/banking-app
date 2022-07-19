@@ -6,6 +6,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:nb_utils/nb_utils.dart';
 
 import 'banking/screen/Authentication/BankingRegister.dart';
+import 'banking/screen/Authentication/One_Time_Password.dart';
 
 void main() {
   runApp(const MyApp());
@@ -22,6 +23,7 @@ class MyApp extends StatelessWidget {
       scrollBehavior: SBehavior(),
       routes: {
         "LogIn" : (context) => const BankingSignIn(),
+        "OTP" : (context) => const OTP(),
         "Register" : (context) => const BankingRegister(),
         "DashBoard" : (context) => const BankingDashboard(),
         "Splash" : (context) => BankingSplash(),
