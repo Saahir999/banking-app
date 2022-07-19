@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:local_auth/local_auth.dart';
 import 'package:nb_utils/nb_utils.dart';
 
@@ -21,6 +22,9 @@ class _BankingRegisterState extends State<BankingRegister> {
   final _formKey2 = GlobalKey<FormState>();
   final _formKey3 = GlobalKey<FormState>();
   final authClass = AuthClass();
+  final storage = const FlutterSecureStorage();
+
+  String? status = "";
 
   final FocusNode _focusNode1 = FocusNode();
   int f = 0;
@@ -36,6 +40,12 @@ class _BankingRegisterState extends State<BankingRegister> {
   @override
   void initState() {
     super.initState();
+    storage.read(key: "showIntro").then((value){
+      if(value != null)
+        {
+          status = value;
+        }
+    });
     _focusNode1.addListener(() {
       if(f>0) {
         _formKey1.currentState?.validate();
@@ -135,8 +145,12 @@ class _BankingRegisterState extends State<BankingRegister> {
                     onPressed: ()async{
                       if(validateID(_controller2.text) == null && validatePhoneNo(_controller.text) == null && validateName(_controller3.text) == null) {
                         //TODO-> check for platform issues if web 'app' is used as end product
-                        //storage.write(key: "showIntro", value: "false");
-                        log(_controller.text + " " + _controller2.text);
+                        if(status!.isEmpty){
+                          storage.write(key: "phone", value: _controller.text);
+                          storage.write(key: "custId", value: _controller2.text);
+                        }
+                        storage.write(key: "showIntro", value: "false");
+                        log("${_controller.text} ${_controller2.text}");
                         ( await authClass.register(custId: _controller2.text,phone: _controller.text, name: _controller3.text))
                             ? Navigator.popAndPushNamed(context, "OTP",
                             arguments: {

@@ -21,7 +21,11 @@ class AuthClass{
     return verified;
   }
   Future login({required String custId,required String phone})async{
-
+    Map? info = await Verifylogin(custId: custId, phone: phone);
+    if(info == null){
+      return false;
+    }
+    return true;
   }
 
   Future Verifylogin({required String custId,required String phone})async{

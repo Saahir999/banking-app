@@ -31,6 +31,9 @@ class BankingSignInState extends State<BankingSignIn> {
   List<BiometricType>? _availableBiometrics;
   bool _isAuthenticating = false;
   bool change = false;
+  String? status = "";
+  String? phone;
+  String? custId;
 
   final _formKey1 = GlobalKey<FormState>();
   final _formKey2 = GlobalKey<FormState>();
@@ -45,6 +48,18 @@ class BankingSignInState extends State<BankingSignIn> {
   @override
   void initState() {
     super.initState();
+    storage.read(key: "phone").then((value) {
+       phone = value;
+    });
+    storage.read(key: "custId").then((value) {
+      custId = value;
+    });
+    storage.read(key: "showIntro").then((value){
+      if(value != null)
+      {
+        status = value;
+      }
+    });
     auth.isDeviceSupported().then(
           (bool isSupported) =>
           setState(() =>
@@ -141,8 +156,12 @@ class BankingSignInState extends State<BankingSignIn> {
                           //TODO-> check for platform issues if web 'app' is used as end product
                           //storage.write(key: "showIntro", value: "false");
                           authClass.login(custId: _controller2.text,phone: _controller.text).then((val){
-                            if(val != null){
-                              Navigator.pushReplacementNamed(context, "DashBoard",arguments: {});
+                            if(val == true){
+                              Navigator.popAndPushNamed(context, "OTP",
+                                  arguments: {
+                                    "phone":_controller.text,
+                                    "custId":_controller2.text
+                                  });
                             }
                             else{
                               _controller.text = "";
@@ -187,10 +206,12 @@ class BankingSignInState extends State<BankingSignIn> {
                                       TextButton(
                                         onPressed: () {
                                           _authenticate().then((value) {
-                                            if (value == true) {
-                                              Navigator.push(context,
-                                                  MaterialPageRoute(builder: (
-                                                      context) => const BankingDashboard()));
+                                            if (value == true && status!.isNotEmpty) {
+                                            Navigator.popAndPushNamed(context, "OTP",
+                                                arguments: {
+                                                  "phone":phone ?? _controller.text,
+                                                  "custId":custId ?? _controller2.text
+                                                });
                                             }
                                           });
                                         },
@@ -207,10 +228,12 @@ class BankingSignInState extends State<BankingSignIn> {
                                         onPressed: () {
                                           _authenticateWithBiometrics().then((
                                               value) {
-                                            if (value == true) {
-                                              Navigator.push(context,
-                                                  MaterialPageRoute(builder: (
-                                                      context) => const BankingDashboard()));
+                                            if (value == true && status!.isNotEmpty) {
+                                              Navigator.popAndPushNamed(context, "OTP",
+                                                  arguments: {
+                                                    "phone":phone ?? _controller.text,
+                                                    "custId":custId ?? _controller2.text
+                                                  });
                                             }
                                           });
                                         },
