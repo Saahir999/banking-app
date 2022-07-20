@@ -186,11 +186,13 @@ class _OTPState extends State<OTP> {
                         ElevatedButton(
                           onPressed: () async {
                             String otp = controller1.text + controller2.text + controller3.text + controller4.text + controller5.text + controller6.text;
-                            if(await authClass.confirmOtp(otp: otp, custId: data["custId"], phone: data["phone"],) ){
-                                Navigator.pushNamed(context, "DashBoard");
+                            if(await authClass.confirmOtp(otp: otp,
+                              custId: data["custId"], phone: data["phone"],) ){
+                                Navigator.popAndPushNamed(context, "DashBoard");
                             }
                             else{
-                              showAlert(context: context,title: "Please retry with new otp");
+                              showAlert(context: context,
+                                  title: "Please retry with new otp");
                             }
                           },
                           child: const Text("Confirm")),
